@@ -5,6 +5,7 @@ import pickle
 from nltk.tokenize import word_tokenize
 from nltk.classify import ClassifierI
 from nltk.corpus import stopwords
+from nltk.classify.scikitlearn import SklearnClassifier
 from statistics import mode
 
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
@@ -16,13 +17,19 @@ class VoteClassifier(ClassifierI):
         self._classifiers = classifiers
 
     def classify(self, features):
+        votes = count(features)
+        return mode(votes)
+
+    def conf(self, features):
+        votes = count(features)
+        return votes.count(mode(votes)) / len(votes)
+
+    def count(self, features):
         votes = []
         for c in self._classifiers:
-            v = c.classify(features)
-            votes.append(v)
-        count = votes.count(mode(votes))
-        confidence = count / len(votes)
-        return {mode(votes) : confidence}
+            votes.append(c.classify(features))
+
+        return votes
 
 
 
@@ -51,7 +58,7 @@ for word in short_neg_words:
         all_words.append(word.lower())
 
 all_words = nltk.FreqDist(all_words)
-top_words = list(all_words.keys())[:5000]
+top_words = list(all_words.keys())[:2000]
 feature_sets = []
 
 def find_features(review):
@@ -66,8 +73,8 @@ for (review, category) in documents:
 
 random.shuffle(feature_sets)
 
-training_set = featuresets[:10000]
-testing_set = featuresets[10000:]
+training_set = feature_sets[:1000]
+testing_set = feature_sets[1000:]
 
 all_classifiers = [MultinomialNB(),
                    BernoulliNB(),
@@ -83,9 +90,11 @@ all_classifier_names = ["MultinomialNB",
 
 for i in range(0, len(all_classifiers)):
     classifier = SklearnClassifier(all_classifiers[i])
-    classifier.train()
+    classifier.train(training_set)
     all_classifiers[i] = classifier
-    ## add accuracy test
+    print(all_classifier_names[i], " accuracy: ",
+          (nltk.classify.accuracy(classifier, testing_set)) * 100,
+          "%")
 
 voted_final_classifier = VoteClassifier(all_classifiers[0],
                                         all_classifiers[1],
