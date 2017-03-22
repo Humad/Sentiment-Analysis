@@ -39,6 +39,9 @@ load_file = open("pickled/top_words.pickle", "rb")
 top_words = pickle.load(load_file)
 load_file.close()
 
+# Tokenizes words from document and checks whether or not
+# each of the words is in the list of most popular words.
+# Returns a mapping of words to their existence.
 def find_features(document):
     given_words = word_tokenize(document)
     features = {}
@@ -56,6 +59,7 @@ vote_classifier = VoteClassifier(all_classifiers[0],
                                  all_classifiers[3],
                                  all_classifiers[4])
 
+# Takes text and returns its classification and confidence regarding classification
 def sentiment(text):
     feature_set = find_features(text)
     return vote_classifier.classify(feature_set), vote_classifier.conf(feature_set) * 100
