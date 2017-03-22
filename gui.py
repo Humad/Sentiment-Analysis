@@ -9,16 +9,18 @@ from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 from functools import partial
 
-
+# Used to stream live tweets
 class listener(StreamListener):
+    # On receiving new data
     def on_data(self, data):
         try: 
             tweet_data = json.loads(data)
-            tweet = tweet_data["text"]
+            tweet = tweet_data["text"] # get text from tweet
             sentiment, confidence = s.sentiment(tweet)
             twitter_file = open("twitter_output.txt", "a")
             print("The tweet: ", tweet)
             
+            # Write sentiment to file if confidence level is at least 80%
             if confidence >= 80:
                 twitter_file.write(sentiment)
                 twitter_file.write("\n")
@@ -27,10 +29,11 @@ class listener(StreamListener):
             return True
         except:
             print("error")
-
+    
     def on_error(self, status):
         print(status)
 
+# Search for keyword on Twitter
 def get_search_results(keyword):
     print("Searching for: ", keyword)
     print("Getting data from twitter? ", get_data_from_twitter.get())
@@ -68,7 +71,7 @@ def main():
                              command=lambda: get_search_results(toolbar_search_field.get()))
     nyt_button.grid(row=1, column=5)
 
-
+##########
 main_window = Tk()
 
 # keys and tokens
@@ -81,6 +84,7 @@ auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 twitter_stream = Stream(auth, listener())
 
+# Plotting the data
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 
@@ -89,7 +93,7 @@ def plot_graph():
     ax.clear()
     plt.show()
 
-    
+# Updates x and y values
 def animate(i):
     twitter_data = open("twitter_output.txt", "r").read()
     lines = twitter_data.split("\n")
@@ -114,6 +118,6 @@ def animate(i):
     
 
 get_data_from_twitter = BooleanVar() # whether or not to get data from twitter
-open("twitter_output.txt", "w").close() # erase all previous content in 
+open("twitter_output.txt", "w").close() # erase all previous content in file
 main()
 main_window.mainloop() # continuously show the window
