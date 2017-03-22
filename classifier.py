@@ -47,9 +47,11 @@ short_neg = open("training_data/negative.txt", "r").read()
 
 documents = []
 
+# Append all positive reviews and mark them
 for review in short_pos.split('\n'):
     documents.append((review, "pos"))
 
+# Append all negative reviews and mark them
 for review in short_neg.split('\n'):
     documents.append((review, "neg"))
 
@@ -61,10 +63,12 @@ short_neg_words = word_tokenize(short_neg)
 short_neg_words = nltk.pos_tag(short_neg_words)
 
 for word in short_pos_words:
-    if word[0] not in stop and word[1][0] == "J":
+    # if not stop word and is adjective
+    if word[0] not in stop and word[1][0] == "J": 
         all_words.append(word[0].lower())
 
 for word in short_neg_words:
+    # if not stop word and is adjective
     if word[0] not in stop and word[1][0] == "J":
         all_words.append(word[0].lower())
 
@@ -72,13 +76,14 @@ save_file = open("pickled/documents.pickle", "wb")
 pickle.dump(documents, save_file)
 save_file.close()
 
-all_words = nltk.FreqDist(all_words)
-top_words = list(all_words.keys())[:5000]
-
+all_words = nltk.FreqDist(all_words) # how often each word occurs
+top_words = list(all_words.keys())[:5000] # 5000 most frequent words
 save_file = open("pickled/top_words.pickle", "wb")
 pickle.dump(top_words, save_file)
 save_file.close()
 
+# Tokenize words in review and return a mapping of word 
+# to whether or not it is in top 5000
 def find_features(review):
     review_words = word_tokenize(review)
     features = {}
@@ -88,6 +93,7 @@ def find_features(review):
 
 feature_sets = []
 
+# Map review features (word mapping) to category
 for (review, category) in documents:
     feature_sets.append((find_features(review), category))
 
@@ -112,6 +118,7 @@ all_classifier_names = ["MultinomialNB",
                         "LinearSVC",
                         "NuSVC"]
 
+# Train all classifiers
 for i in range(0, len(all_classifiers)):
     classifier = SklearnClassifier(all_classifiers[i])
     classifier.train(training_set)
@@ -137,11 +144,3 @@ print("Voted Final Classifier accuracy: ",
 save_file = open("pickled/vote_classifier.pickle", "wb")
 pickle.dump(vote_classifier, save_file)
 save_file.close()
-
-
-
-
-
-
-
-
