@@ -40,14 +40,19 @@ class listener(StreamListener):
 def get_nyt_articles():
     keyword = toolbar_search_field.get()
     url = "https://api.nytimes.com/svc/search/v2/articlesearch.json?"
-    parameters = {"api-key": nyt_key, "q": keyword, "begin_date": toolbar_begin_date_field.get(), "end_date": toolbar_end_date_field.get()}
+    
+    parameters = {"api-key": nyt_key,
+                  "q": keyword,
+                  "begin_date": toolbar_begin_date_field.get(),
+                  "end_date": toolbar_end_date_field.get(),
+                  "sort": "oldest"}
+    
     url = url + urlencode(parameters)
     response = requests.get(url).json()
     output_file = open("output.txt", "a")
-    print(response)
 
-    for details in response["docs"]:
-        sentiment, confidence = s.sentiment(details["lead_paragraph"])
+    for details in response["response"]["docs"]:
+        sentiment, confidence = s.sentiment(str(details["lead_paragraph"]))
         if (confidence >= 80):
             output_file.write(sentiment)
             output_file.write("\n")
@@ -56,8 +61,6 @@ def get_nyt_articles():
 # Search for keyword on Twitter
 def get_search_results():
     keyword = toolbar_search_field.get()
-    print("Searching for: ", keyword)
-    print("Getting data from twitter? ", get_data_from_twitter.get())
     open("output.txt", "w").close() # erase all previous content in file
 
     if (get_data_from_twitter.get()):
@@ -96,7 +99,7 @@ def animate(i):
         if "pos" in line:
             y = y + 1
         elif "neg" in line:
-            y = y - 0.2
+            y = y - 0.5
 
         x_values.append(x)
         y_values.append(y)
