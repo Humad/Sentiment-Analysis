@@ -12,7 +12,7 @@ I used Tkinter to create a basic GUI for the application, Tweepy to connect to T
 # Limitations
 The classifiers are biased and more likely to detect negative sentiment than positive sentiment. In an attempt to counter this, I reduced the impact of negativity on the total sentiment and raised the impact of positivity. However, this does not always work.
 
-Furthermore, performing analysis on old NYT articles might produce an error due to a lack of a lead paragraph returned by the API
+Furthermore, performing analysis on old NYT articles might produce an error due to a lack of a lead paragraph returned by the API.
 
 # To do
 - ~Add more comments to make code more readable~
